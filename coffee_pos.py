@@ -35,7 +35,7 @@ class CoffeePos:
             self._conn.close()
             self._conn = None
         
-    def execute(self, cmds: list | str):
+    def execute(self, cmds: list | str, execute_seperate = False):
         self.connect()
             
         if isinstance(cmds, str):
@@ -43,6 +43,7 @@ class CoffeePos:
             
         for cmd in cmds:
           self._cursor.execute(cmd)
+          if (execute_seperate): self._conn.commit()
         
         self._conn.commit()
         self.close()
@@ -64,8 +65,26 @@ class CoffeePos:
         clean_cmds = [cmd.strip() for cmd in cmds]
         
         self.execute(clean_cmds)
+    
+    def dbIsPopulated(self):
+        self.connect()
+        self._cursor.execute("SELECT COUNT(*) FROM staff")
+        count = self._cursor.fetchone()[0]
+        self.close()
+        return count != 0
+    
+    def populateDB(self):
         
+        with open('./sql/data.sql', 'r') as f:
+            data = f.read()
+            
+        cmds = [cmd.strip() for cmd in data.split(';')]
+        
+        if (not self.dbIsPopulated()):
+            self.execute(cmds, execute_seperate=True)
+            
         
     def start(self):
         self.createDB()
         self.createSchemas()
+        self.populateDB()
