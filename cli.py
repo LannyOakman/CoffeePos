@@ -1,21 +1,21 @@
-from coffee_pos import initPos
+from coffee_pos import CoffeePos
 import os
 from dotenv import load_dotenv
 import mysql.connector
 
+
 def main():
+
+    load_dotenv()
+
+    pos = CoffeePos(
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD")
+    )
     
-    try:
-        conn = mysql.connector.connect(
-            os.getenv("DB_HOST"),
-            os.getenv("DB_USER"),
-            os.getenv("DB_PASSWORD")
-        )
-    except:
-        print("Credentials Invalid. Create .env file with correct credentials")
-        exit()
-    
-    initPos(conn)
-    
-if __name__ == '__main__':
+    pos.start()
+
+
+if __name__ == "__main__":
     main()
