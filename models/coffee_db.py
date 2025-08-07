@@ -27,32 +27,37 @@ class CoffeeDb:
                     database=self._database
                 )
                 
-                self._cursor = self.conn.cursor()
+                self.cursor = self.conn.cursor()
 
             except Exception as e:
                 print(e)
                 raise
     
     def close(self):
-        if self._cursor != None:
-            self._cursor.close()
-            self._cursor = None
+        if self.cursor != None:
+            self.cursor.close()
+            self.cursor = None
         if self.conn != None:
             self.conn.close()
             self.conn = None
         
-    def execute(self, cmds: list | str, execute_seperate = False):
+    def execute(self, cmds: list | str, execute_seperate = False, close_conn = True):
         self.connect()
             
         if isinstance(cmds, str):
             cmds = [cmds]
             
         for cmd in cmds:
-          self._cursor.execute(cmd)
+          self.cursor.execute(cmd)
           if (execute_seperate): self.conn.commit()
         
         self.conn.commit()
-        self.close()
+        
+        if close_conn:
+            self.close()
+            return None
+
+        return self.cursor
 
     def createDB(self):
         with open('./sql/db.sql', 'r') as f:
@@ -74,8 +79,8 @@ class CoffeeDb:
     
     def dbIsPopulated(self):
         self.connect()
-        self._cursor.execute("SELECT COUNT(*) FROM staff")
-        count = self._cursor.fetchone()[0]
+        self.cursor.execute("SELECT COUNT(*) FROM staff")
+        count = self.cursor.fetchone()[0]
         self.close()
         return count != 0
     
