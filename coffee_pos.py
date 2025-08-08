@@ -58,7 +58,7 @@ class CoffeePos:
         
         for (product, quantity) in self.productQuantity:
             total += (product.price) * quantity
-            
+
         print(f"Customer pays ${total}\n")
         
         a = input(
@@ -287,8 +287,17 @@ class CoffeePos:
         else:
             self.start()
         
+        with open('./sql/data.sql', 'r') as f:
+            data = f.read()
+            
+        cmds = [cmd.strip() for cmd in data.split(';')]
+        
+        if (not self.dbIsPopulated()):
+            self.execute(cmds, execute_seperate=True)
+            
         
     def start(self):
+
         clearTerminal()
         print(
             f"\n{'-' * 22}Welcome to CoffeePOS{'-' * 22}\n",
@@ -308,3 +317,4 @@ class CoffeePos:
             self.login()
         else:
             self.createStaff()
+
